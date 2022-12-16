@@ -1,0 +1,29 @@
+/* .modal-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  z-index: 9;
+  background-color: rgb(0, 0, 0, 0.5);
+} */
+
+body {
+  background-image: url("https://get.wallhere.com/photo/cyberpunk-Cyberpunk-2077-yellow-background-CD-Projekt-RED-1954545.jpg");
+  background-size: cover;
+}
+
+.custom-modal {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 5px;
+  background-color: rgba(93, 185, 84);
+}
+
+[data-wrapper] {
+  flex-wrap: wrap;
+}
