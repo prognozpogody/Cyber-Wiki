@@ -1,7 +1,7 @@
 const $wrapper = document.querySelector("[data-wrapper]");
 const $addButton = document.querySelector('[data-action="addButton"]');
 const $modal = document.querySelector("[data-modal]");
-
+const $overlay = document.querySelector(".dm-overlay");
 const genCat = (
   cat
 ) => `<div data-card_id="${cat.id}" class="card m-3 animate__animated animate__fadeIn" style="width: 18rem;">
@@ -32,7 +32,7 @@ $wrapper.addEventListener("click", (event) => {
   }
 });
 
-document.forms.catsForm.addEventListener("submit", () => {
+document.forms.catsForm.addEventListener("submit", (event) => {
   event.preventDefault();
   console.log(event);
   const data = Object.fromEntries(new FormData(event.target).entries());
@@ -47,6 +47,12 @@ document.forms.catsForm.addEventListener("submit", () => {
 
 $addButton.addEventListener("click", () => {
   $modal.classList.remove("hidden");
+  $overlay.classList.remove("hidden");
+  
+  $overlay.addEventListener("click", () => {
+    $modal.classList.add("hidden");
+    $overlay.classList.add("hidden");
+  });
 });
 
 const api = new Api("kg");
