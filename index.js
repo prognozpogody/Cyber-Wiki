@@ -2,6 +2,7 @@ const $wrapper = document.querySelector("[data-wrapper]");
 const $addButton = document.querySelector('[data-action="addButton"]');
 const $modal = document.querySelector("[data-modal]");
 const $overlay = document.querySelector(".dm-overlay");
+
 const genCat = (
   cat
 ) => `<div data-card_id="${cat.id}" class="card m-3 animate__animated animate__fadeIn" style="width: 18rem;">
@@ -11,6 +12,22 @@ const genCat = (
   <div class="d-flex justify-content-sm-evenly">
   <button data-action="show" class="btn btn-primary">Show</button>
   <button data-action="delete" class="btn btn-danger">Delete</button>
+  </div>
+</div>
+</div>`;
+
+const showModalCat = (
+  cat
+) => `<div data-card-show class="card__show">
+<div class="row g-0">
+  <div class="col-md-4">
+    <img src="${cat.image}" class="img_card_show" alt="${cat.name}">
+  </div>
+  <div class="col-md-8">
+    <div class="card-body">
+      <h3 class="card-title mt-2">${cat.name}</h3>
+      <p class="card-text text-center p-3">${cat.description}</p>
+    </div>
   </div>
 </div>
 </div>`;
@@ -27,7 +44,26 @@ $wrapper.addEventListener("click", (event) => {
       alert("Не надо портить прекрасное!");
       break;
 
-    default:
+    case "show":
+      const $currentCard = event.target.closest("[data-card_id]");
+      const catId = $currentCard.dataset.card_id;
+      let $currentCardShow;
+      api
+        .getCat(catId)
+        .then((Response) => Response.json())
+        .then((data) => {
+          $overlay.insertAdjacentHTML("beforeend", showModalCat(data));
+        });
+      setTimeout(() => {
+        $currentCardShow = document.querySelector("[data-card-show]");
+      }, 100);
+
+      $overlay.classList.remove("hidden");
+      $overlay.addEventListener("click", () => {
+        $overlay.classList.add("hidden");
+        $currentCardShow.remove();
+      });
+
       break;
   }
 });
@@ -48,7 +84,7 @@ document.forms.catsForm.addEventListener("submit", (event) => {
 $addButton.addEventListener("click", () => {
   $modal.classList.remove("hidden");
   $overlay.classList.remove("hidden");
-  
+
   $overlay.addEventListener("click", () => {
     $modal.classList.add("hidden");
     $overlay.classList.add("hidden");

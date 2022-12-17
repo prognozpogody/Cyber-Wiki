@@ -20,6 +20,27 @@
   z-index: 5;
 }
 
+.card__show {
+  position: absolute;
+  width: 858px;
+  height: 300px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  background: #dc3545;
+ 
+}
+
+.img_card_show {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 33.33333333%;
+  object-fit: cover;
+}
+
 body {
   background-image: url("https://w0.peakpx.com/wallpaper/347/253/HD-wallpaper-video-game-cyberpunk-2077-yellow-minimalist.jpg");
   background-size: cover;
