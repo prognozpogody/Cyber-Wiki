@@ -16,9 +16,7 @@ const genCat = (
 </div>
 </div>`;
 
-const showModalCat = (
-  cat
-) => `<div data-card-show>
+const showModalCat = (cat) => `<div data-card-show>
 
     <img src="${cat.image}" class="img_card_show" alt="${cat.name}">
   
@@ -28,13 +26,56 @@ const showModalCat = (
     <div class="card__info"> 
       <h3 class="card-title mt-2">${cat.name}</h3>
       <p class="card-text text-center p-3">${cat.description}</p>
-      <button data-action="delete" class="btn btn-success btn-success-edit "">Edit</button>
+      <button data-action-add class="btn btn-success btn-success-edit"">Edit</button>
     </div>
     
   
 </div>
 
 `;
+
+const createShowModalEditCard = (cat) => `
+  <div data-modal-edit class="modal-wrapper">
+      
+      <div class="d-flex justify-content-center custom-modal">
+          <form name="catsFormEdit">
+              <div>
+                  <h3>Изменение</h3>
+                  <label for="name"></label>
+                  <input type="text" class="form-control mb-2" placeholder="Введите имя" name="name" id="name" value="${cat.name}" />
+
+                  <label for="id">Введите порядковый номер персонажа</label>
+                  <input type="text" class="form-control mb-2" name="id" id="id" placeholder="Число" value="${cat.id}" />
+
+                  <label for="image">Url изображения персонажа</label>
+                  <input type="url" class="form-control mb-2" name="image" id="image" placeholder="https://" value="${cat.image}" />
+
+                  <label for="age">Врозраст персонажа</label>
+                  <input type="number" class="form-control mb-2" name="age" id="age" value="${cat.age}" />
+
+                  <label for="rate">Оценка по 10 бальной</label>
+                  <input type="range" min="0" max="10" class="form-control mb-2" name="rate" id="rate" value="${cat.rate}"/>
+
+                  <div class="mb-3 form-check">
+                      <label for="favorite" class="form-check-label">Чумба!</label>
+                      <input type="checkbox" class="form-check-input mb-2" name="favorite" id="favorite" />
+                  </div>
+
+                  <label for="description">Пара слов о персонаже</label>
+                  <input type="text" class="form-control mb-2" name="description" id="description" value="${cat.description}"/>
+                  <button type="submit" class="btn btn-primary">Торпедировать перса</button>
+              </div>
+
+          </form>
+      </div>
+  </div>`;
+const closeModal = () => {
+  $overlay.classList.remove("hidden");
+  $overlay.addEventListener("click", () => {
+    $overlay.classList.add("hidden");
+    $currentCardShow.remove();
+  });
+};
 
 $wrapper.addEventListener("click", (event) => {
   switch (event.target.dataset.action) {
@@ -52,21 +93,43 @@ $wrapper.addEventListener("click", (event) => {
       const $currentCard = event.target.closest("[data-card_id]");
       const catId = $currentCard.dataset.card_id;
       let $currentCardShow;
+      let edit;
+      let cardObj;
+
       api
         .getCat(catId)
         .then((Response) => Response.json())
         .then((data) => {
           $overlay.insertAdjacentHTML("afterend", showModalCat(data));
+          $currentCardShow = document.querySelector("[data-card-show]");
+          edit = document.querySelector("[data-action-add]");
+          cardObj = data;
         });
-      setTimeout(() => {
-        $currentCardShow = document.querySelector("[data-card-show]");
-      }, 100);
 
       $overlay.classList.remove("hidden");
       $overlay.addEventListener("click", () => {
         $overlay.classList.add("hidden");
         $currentCardShow.remove();
       });
+
+      setTimeout(() => {
+        edit.addEventListener("click", () => {
+          $overlay.insertAdjacentHTML(
+            "afterend",
+            createShowModalEditCard(cardObj)
+          );
+          $overlay.style.zIndex = 8;
+
+          $overlay.classList.remove("hidden");
+          $overlay.addEventListener("click", () => {
+            $overlay.classList.add("hidden");
+            let modal = document.querySelector("[data-modal-edit]").remove();
+
+            $overlay.style.zIndex = 7;
+          });
+        });
+        console.log(cardObj);
+      }, 100);
 
       break;
   }

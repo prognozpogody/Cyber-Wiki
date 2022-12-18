@@ -6,7 +6,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  z-index: 7;
+  z-index: 10;
 }
 
 .dm-overlay {
@@ -48,11 +48,6 @@
   width: 33.333%;
   object-fit: cover;
 }
-
-/* .btn-success-edit {
-  position: absolute;
- bottom: 0;
-} */
 
 body {
   background-image: url("https://w0.peakpx.com/wallpaper/347/253/HD-wallpaper-video-game-cyberpunk-2077-yellow-minimalist.jpg");
