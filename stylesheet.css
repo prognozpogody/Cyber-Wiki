@@ -20,26 +20,39 @@
   z-index: 5;
 }
 
-.card__show {
+[data-card-show] {
+  display: flex;
+  flex-direction: row-reverse;
   position: absolute;
-  width: 858px;
+  width: 70%;
   height: 300px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  z-index: 6;
+  z-index: 7;
   background: #dc3545;
- 
 }
 
+.card__info {
+  display: flex;
+  width: 66.666%;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
 .img_card_show {
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
-  width: 33.33333333%;
+  height: 300px;
+  width: 33.333%;
   object-fit: cover;
 }
+
+/* .btn-success-edit {
+  position: absolute;
+ bottom: 0;
+} */
 
 body {
   background-image: url("https://w0.peakpx.com/wallpaper/347/253/HD-wallpaper-video-game-cyberpunk-2077-yellow-minimalist.jpg");
@@ -52,7 +65,7 @@ body {
 h3 {
   font-weight: bolder;
   text-align: center;
- 
+
   border-radius: 15px;
 }
 
@@ -74,7 +87,7 @@ h3 {
   display: none;
 }
 
-.btn-success {
+.btn-success-add {
   width: 500px;
   font-weight: bolder;
   font-size: 25px;

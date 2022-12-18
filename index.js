@@ -18,19 +18,23 @@ const genCat = (
 
 const showModalCat = (
   cat
-) => `<div data-card-show class="card__show">
-<div class="row g-0">
-  <div class="col-md-4">
+) => `<div data-card-show>
+
     <img src="${cat.image}" class="img_card_show" alt="${cat.name}">
-  </div>
-  <div class="col-md-8">
-    <div class="card-body">
+  
+
+  
+ 
+    <div class="card__info"> 
       <h3 class="card-title mt-2">${cat.name}</h3>
       <p class="card-text text-center p-3">${cat.description}</p>
+      <button data-action="delete" class="btn btn-success btn-success-edit "">Edit</button>
     </div>
-  </div>
+    
+  
 </div>
-</div>`;
+
+`;
 
 $wrapper.addEventListener("click", (event) => {
   switch (event.target.dataset.action) {
@@ -52,7 +56,7 @@ $wrapper.addEventListener("click", (event) => {
         .getCat(catId)
         .then((Response) => Response.json())
         .then((data) => {
-          $overlay.insertAdjacentHTML("beforeend", showModalCat(data));
+          $overlay.insertAdjacentHTML("afterend", showModalCat(data));
         });
       setTimeout(() => {
         $currentCardShow = document.querySelector("[data-card-show]");
