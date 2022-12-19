@@ -56,11 +56,17 @@ class Api {
     });
   }
 
-  delCat(id) {
-    return fetch(`${this.url}${this.name}/delete/${id}`, {
-      method: "DELETE",
-    });
+  async delCat(id) {
+    try {
+      const response = await fetch(`${this.url}${this.name}/delete/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.status !== 200) {
+        throw new Error();
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }
-
-

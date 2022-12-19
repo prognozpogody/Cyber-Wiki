@@ -22,7 +22,7 @@ const genCat = (
 </div>
 </div>`;
 
-const showModalCat = (cat) => `<div data-card-show>
+const showModalCat = (cat) => `<div  data-card-show>
 
     <img src="${cat.image}" class="img_card_show" alt="${cat.name}">
   
@@ -86,29 +86,25 @@ const createShowModalEditCard = (cat) => `
   </div>`;
 
 $wrapper.addEventListener("click", (event) => {
+  const $currentCard = event.target.closest("[data-card_id]");
+  const catId = $currentCard.dataset.card_id;
   switch (event.target.dataset.action) {
     case "delete":
-      // Функционал удаление, убран от похотливых рук
-      //_______________________________________________
-      // const $currentCard = event.target.closest("[data-card_id]");
-      // const catId = $currentCard.dataset.card_id;
-      // api.delCat(catId);
-      // $currentCard.remove();
-      alert("Не надо портить прекрасное!");
+      api.delCat(catId);
+      $currentCard.remove();
+      event.target.reset();
       break;
 
     case "show":
-      const $currentCard = event.target.closest("[data-card_id]");
-      const catId = $currentCard.dataset.card_id;
       let $currentCardShow;
       let edit;
       let cardObj;
       let $modalEdit;
 
       const closeModalCard = () => {
+        $currentCardShow.remove();
         $overlay.classList.add("hidden");
         $overlay.style.zIndex = 1;
-        $currentCardShow.remove();
       };
 
       const closeModalEdit = () => {
@@ -138,6 +134,7 @@ $wrapper.addEventListener("click", (event) => {
           data.rate = Number(data.rate);
           data.favorite = data.favorite === "on";
           cardObj = data;
+          localStorage.setItem(cardObj.name, JSON.stringify(data));
           api
             .updCat(data, cardObj.id)
             .then((Response) => Response.ok && closeModalEdit());
@@ -173,10 +170,12 @@ document.forms.catsForm.addEventListener("submit", (event) => {
   data.age = Number(data.age);
   data.rate = Number(data.rate);
   data.favorite = data.favorite === "on";
-  api.addCat(data).then((Response) => {
-    $wrapper.insertAdjacentHTML("beforeend", genCat(Response));
+  api.addCat(data).then(() => {
+    $wrapper.insertAdjacentHTML("beforeend", genCat(data));
     $modal.classList.add("hidden");
     event.target.reset();
+    $overlay.classList.add("hidden");
+    localStorage.setItem(event.target.name , JSON.stringify(data));
   });
 });
 
