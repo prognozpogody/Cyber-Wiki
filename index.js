@@ -2,6 +2,12 @@ const $wrapper = document.querySelector("[data-wrapper]");
 const $addButton = document.querySelector('[data-action="addButton"]');
 const $modal = document.querySelector("[data-modal]");
 const $overlay = document.querySelector(".dm-overlay");
+const api = new Api("kg");
+api.getCats().then((Response) => {
+  Response.forEach((value) => {
+    $wrapper.insertAdjacentHTML("beforeend", genCat(value));
+  });
+});
 
 const genCat = (
   cat
@@ -24,7 +30,7 @@ const showModalCat = (cat) => `<div data-card-show>
   
  
     <div class="card__info"> 
-      <h3 class="card-title mt-2">${cat.name}</h3>
+      <h3 class="card-title mt-2">${cat.name} ${cat.age} лет</h3>
       <p class="card-text text-center p-3">${cat.description}</p>
       <button data-action-add class="btn btn-success btn-success-edit"">Edit</button>
     </div>
@@ -97,69 +103,64 @@ $wrapper.addEventListener("click", (event) => {
       let $currentCardShow;
       let edit;
       let cardObj;
+      let $modalEdit;
 
       const closeModalCard = () => {
         $overlay.classList.add("hidden");
+        $overlay.style.zIndex = 1;
         $currentCardShow.remove();
-        console.log(event);
-        console.log(event.target);
       };
 
-      api
-        .getCat(catId)
-        .then((data) => {
+      const closeModalEdit = () => {
+        $modalEdit.remove();
+        $overlay.style.zIndex = 1;
+        $overlay.addEventListener("click", closeModalCard);
+      };
+
+      const createModalEdit = () => {
+        $overlay.removeEventListener("click", closeModalCard);
+
+        $overlay.insertAdjacentHTML(
+          "afterend",
+          createShowModalEditCard(cardObj)
+        );
+        $modalEdit = document.querySelector("[data-modal-edit]");
+
+        $overlay.style.zIndex = 8;
+
+        $overlay.addEventListener("click", closeModalEdit);
+
+        document.forms.catsFormEdit.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const data = Object.fromEntries(new FormData(event.target).entries());
+          data.id = Number(cardObj.id);
+          data.age = Number(data.age);
+          data.rate = Number(data.rate);
+          data.favorite = data.favorite === "on";
           cardObj = data;
+          api
+            .updCat(data, cardObj.id)
+            .then((Response) => Response.ok && closeModalEdit());
+          $currentCardShow.remove();
           $overlay.insertAdjacentHTML("afterend", showModalCat(cardObj));
           $currentCardShow = document.querySelector("[data-card-show]");
           edit = document.querySelector("[data-action-add]");
+          edit.addEventListener("click", createModalEdit);
         });
+      };
 
       $overlay.classList.remove("hidden");
+      $overlay.style.zIndex = 1;
       $overlay.addEventListener("click", closeModalCard);
 
-      setTimeout(() => {
-        edit.addEventListener("click", () => {
-          $overlay.removeEventListener("click", closeModalCard);
+      api.getCat(catId).then((data) => {
+        cardObj = data;
+        $overlay.insertAdjacentHTML("afterend", showModalCat(cardObj));
+        $currentCardShow = document.querySelector("[data-card-show]");
+        edit = document.querySelector("[data-action-add]");
 
-          $overlay.insertAdjacentHTML(
-            "afterend",
-            createShowModalEditCard(cardObj)
-          );
-
-          $overlay.style.zIndex = 8;
-
-          $overlay.addEventListener(
-            "click",
-            () => {
-              $overlay.style.zIndex = 1;
-              let modal = document.querySelector("[data-modal-edit]");
-              modal.remove();
-
-              $overlay.addEventListener("click", closeModalCard);
-            },
-            100
-          );
-
-          document.forms.catsFormEdit.addEventListener("submit", (event) => {
-            event.preventDefault();
-            console.log(event);
-            const data = Object.fromEntries(
-              new FormData(event.target).entries()
-            );
-            console.log(data);
-            data.id = Number(cardObj.id);
-            data.age = Number(data.age);
-            data.rate = Number(data.rate);
-            data.favorite = data.favorite === "on";
-            api
-              .updCat(data, cardObj.id)
-              .then(
-                (Response) => Response.ok && $modal.classList.add("hidden")
-              );
-          });
-        });
-      }, 100);
-
+        edit.addEventListener("click", createModalEdit);
+      });
       break;
   }
 });
@@ -183,19 +184,8 @@ $addButton.addEventListener("click", () => {
   $modal.classList.remove("hidden");
   $overlay.classList.remove("hidden");
 
-  $overlay.addEventListener(
-    "click",
-    () => {
-      $modal.classList.add("hidden");
-      $overlay.classList.add("hidden");
-    },
-    { once: true }
-  );
-});
-
-const api = new Api("kg");
-api.getCats().then((Response) => {
-  Response.forEach((value) => {
-    $wrapper.insertAdjacentHTML("beforeend", genCat(value));
+  $overlay.addEventListener("click", () => {
+    $modal.classList.add("hidden");
+    $overlay.classList.add("hidden");
   });
 });

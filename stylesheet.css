@@ -23,9 +23,9 @@
 [data-card-show] {
   display: flex;
   flex-direction: row-reverse;
-  position: absolute;
   width: 70%;
   height: 300px;
+  position: fixed;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
