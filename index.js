@@ -41,41 +41,43 @@ const createShowModalEditCard = (cat) => `
           <form name="catsFormEdit">
               <div>
                   <h3>Изменение</h3>
-                  <label for="name"></label>
-                  <input type="text" class="form-control mb-2" placeholder="Введите имя" name="name" id="name" value="${cat.name}" />
-
-                  <label for="id">Введите порядковый номер персонажа</label>
-                  <input type="text" class="form-control mb-2" name="id" id="id" placeholder="Число" value="${cat.id}" />
+                  <label for="name">Имя персонажа</label>
+                  <input type="text" class="form-control mb-2" placeholder="Введите имя" name="name" id="name" value="${
+                    cat.name
+                  }" />
 
                   <label for="image">Url изображения персонажа</label>
-                  <input type="url" class="form-control mb-2" name="image" id="image" placeholder="https://" value="${cat.image}" />
+                  <input type="url" class="form-control mb-2" name="image" id="image" placeholder="https://" value="${
+                    cat.image
+                  }" />
 
                   <label for="age">Врозраст персонажа</label>
-                  <input type="number" class="form-control mb-2" name="age" id="age" value="${cat.age}" />
+                  <input type="number" class="form-control mb-2" name="age" id="age" value="${
+                    cat.age
+                  }" />
 
                   <label for="rate">Оценка по 10 бальной</label>
-                  <input type="range" min="0" max="10" class="form-control mb-2" name="rate" id="rate" value="${cat.rate}"/>
+                  <input type="range" min="0" max="10" class="form-control mb-2" name="rate" id="rate" value="${
+                    cat.rate
+                  }"/>
 
                   <div class="mb-3 form-check">
                       <label for="favorite" class="form-check-label">Чумба!</label>
-                      <input type="checkbox" class="form-check-input mb-2" name="favorite" id="favorite" />
+                      <input type="checkbox" class="form-check-input mb-2" name="favorite" id="favorite"${
+                        cat.favorite ? "checked" : " "
+                      }/>
                   </div>
 
                   <label for="description">Пара слов о персонаже</label>
-                  <input type="text" class="form-control mb-2" name="description" id="description" value="${cat.description}"/>
+                  <input type="text" class="form-control mb-2" name="description" id="description" value="${
+                    cat.description
+                  }"/>
                   <button type="submit" class="btn btn-primary">Торпедировать перса</button>
               </div>
 
           </form>
       </div>
   </div>`;
-const closeModal = () => {
-  $overlay.classList.remove("hidden");
-  $overlay.addEventListener("click", () => {
-    $overlay.classList.add("hidden");
-    $currentCardShow.remove();
-  });
-};
 
 $wrapper.addEventListener("click", (event) => {
   switch (event.target.dataset.action) {
@@ -96,39 +98,66 @@ $wrapper.addEventListener("click", (event) => {
       let edit;
       let cardObj;
 
+      const closeModalCard = () => {
+        $overlay.classList.add("hidden");
+        $currentCardShow.remove();
+        console.log(event);
+        console.log(event.target);
+      };
+
       api
         .getCat(catId)
-        .then((Response) => Response.json())
         .then((data) => {
-          $overlay.insertAdjacentHTML("afterend", showModalCat(data));
+          cardObj = data;
+          $overlay.insertAdjacentHTML("afterend", showModalCat(cardObj));
           $currentCardShow = document.querySelector("[data-card-show]");
           edit = document.querySelector("[data-action-add]");
-          cardObj = data;
         });
 
       $overlay.classList.remove("hidden");
-      $overlay.addEventListener("click", () => {
-        $overlay.classList.add("hidden");
-        $currentCardShow.remove();
-      });
+      $overlay.addEventListener("click", closeModalCard);
 
       setTimeout(() => {
         edit.addEventListener("click", () => {
+          $overlay.removeEventListener("click", closeModalCard);
+
           $overlay.insertAdjacentHTML(
             "afterend",
             createShowModalEditCard(cardObj)
           );
+
           $overlay.style.zIndex = 8;
 
-          $overlay.classList.remove("hidden");
-          $overlay.addEventListener("click", () => {
-            $overlay.classList.add("hidden");
-            let modal = document.querySelector("[data-modal-edit]").remove();
+          $overlay.addEventListener(
+            "click",
+            () => {
+              $overlay.style.zIndex = 1;
+              let modal = document.querySelector("[data-modal-edit]");
+              modal.remove();
 
-            $overlay.style.zIndex = 7;
+              $overlay.addEventListener("click", closeModalCard);
+            },
+            100
+          );
+
+          document.forms.catsFormEdit.addEventListener("submit", (event) => {
+            event.preventDefault();
+            console.log(event);
+            const data = Object.fromEntries(
+              new FormData(event.target).entries()
+            );
+            console.log(data);
+            data.id = Number(cardObj.id);
+            data.age = Number(data.age);
+            data.rate = Number(data.rate);
+            data.favorite = data.favorite === "on";
+            api
+              .updCat(data, cardObj.id)
+              .then(
+                (Response) => Response.ok && $modal.classList.add("hidden")
+              );
           });
         });
-        console.log(cardObj);
       }, 100);
 
       break;
@@ -143,27 +172,30 @@ document.forms.catsForm.addEventListener("submit", (event) => {
   data.age = Number(data.age);
   data.rate = Number(data.rate);
   data.favorite = data.favorite === "on";
-  api
-    .addCat(data)
-    .then((Response) => Response.ok && $modal.classList.add("hidden"));
+  api.addCat(data).then((Response) => {
+    $wrapper.insertAdjacentHTML("beforeend", genCat(Response));
+    $modal.classList.add("hidden");
+    event.target.reset();
+  });
 });
 
 $addButton.addEventListener("click", () => {
   $modal.classList.remove("hidden");
   $overlay.classList.remove("hidden");
 
-  $overlay.addEventListener("click", () => {
-    $modal.classList.add("hidden");
-    $overlay.classList.add("hidden");
-  });
+  $overlay.addEventListener(
+    "click",
+    () => {
+      $modal.classList.add("hidden");
+      $overlay.classList.add("hidden");
+    },
+    { once: true }
+  );
 });
 
 const api = new Api("kg");
-api
-  .getCats()
-  .then((Response) => Response.json())
-  .then((data) =>
-    data.forEach((value) => {
-      $wrapper.insertAdjacentHTML("beforeend", genCat(value));
-    })
-  );
+api.getCats().then((Response) => {
+  Response.forEach((value) => {
+    $wrapper.insertAdjacentHTML("beforeend", genCat(value));
+  });
+});
